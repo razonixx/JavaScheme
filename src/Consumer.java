@@ -11,6 +11,7 @@ public class Consumer extends Thread {
     Buffer buffer;
     int sleep;
     int id;
+    volatile boolean end = false;
     static Long counter = 1L;
     static JLabel jLabel;
     static DefaultTableModel model;
@@ -56,16 +57,19 @@ public class Consumer extends Thread {
         //wait();
     }
     
+    public synchronized void finish(){
+        this.end = true;
+    }
     @Override
     public synchronized void run() {
         System.out.println("Running Consumer...");
         String product;
         String res, op, op1, op2;
         
-        while(true) {
+        while(!this.end) {
             product = this.buffer.consume();
             if(product.length() == 7){
-                jLabel.setText(Long.toString(counter++));
+                //jLabel.setText(Long.toString(counter++));
                 op = String.valueOf(product.charAt(1));
                 op1 = String.valueOf(product.charAt(3));
                 op2 = String.valueOf(product.charAt(5));
@@ -82,7 +86,7 @@ public class Consumer extends Thread {
             try {
                 Thread.sleep(this.sleep);
             } catch (InterruptedException ex) {
-                Logger.getLogger(Producer.class.getName()).log(Level.SEVERE, null, ex);
+                this.finish();
             }
         }
     }

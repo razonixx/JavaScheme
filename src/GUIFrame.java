@@ -17,10 +17,13 @@ public class GUIFrame extends javax.swing.JFrame {
     private boolean banderaBoton = false;
     
     String[] columnNames = {"ID Consumidor","Scheme Op","Res"};
-    DefaultTableModel modelConsumidor = new DefaultTableModel(columnNames, 0);
-    
     String[] columnNamesProductor = {"ID Productor","Scheme Op"};
+    
+    DefaultTableModel modelConsumidor = new DefaultTableModel(columnNames, 0);
     DefaultTableModel modelProductor = new DefaultTableModel(columnNamesProductor, 100);
+    
+    private Producer[] producers;
+    private Consumer[] consumers;
     
     /**
      * Creates new form GUIFrame
@@ -117,9 +120,9 @@ public class GUIFrame extends javax.swing.JFrame {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(jLabel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jSpinner6)
-                    .addComponent(jSpinner7, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jSpinner3, javax.swing.GroupLayout.PREFERRED_SIZE, 83, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(179, Short.MAX_VALUE))
+                    .addComponent(jSpinner3, javax.swing.GroupLayout.PREFERRED_SIZE, 83, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jSpinner7, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(144, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -143,16 +146,14 @@ public class GUIFrame extends javax.swing.JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jSpinner8, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel6)))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(77, 77, 77)
-                        .addComponent(jSpinner7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(jLabel6)
+                            .addComponent(jSpinner3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(jLabel5)
                         .addGap(18, 18, 18)
                         .addComponent(jSpinner6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(97, 97, 97)
-                        .addComponent(jSpinner3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jSpinner7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(225, Short.MAX_VALUE))
         );
 
@@ -265,39 +266,60 @@ public class GUIFrame extends javax.swing.JFrame {
         if(banderaBoton)
         {
             jButton1.setText("INICIAR");
-        }
-        else
-        {
-            jButton1.setText("DETENER");
-        }
-        
-        Buffer buffer = new Buffer((Integer)jSpinner5.getValue());
-        int min = (Integer)jSpinner8.getValue();
-        int max = (Integer)jSpinner3.getValue();
-        
-        if(min > max)
-        {
-            jButton1.setText("INICIAR");
-            JOptionPane.showMessageDialog(null, "Wrong range, min > max");
-        }
-        else
-        {
-            for(int i = 0; i < (Integer)jSpinner1.getValue(); i++)
-            {
-                Producer producer = new Producer(i, buffer, (Integer)jSpinner6.getValue(), min, max, modelProductor, (Integer)jSpinner5.getValue());
-                producer.start(); 
-            }
-
-            for(int i = 0; i < (Integer)jSpinner2.getValue(); i++)
-            {
-                Consumer consumer = new Consumer(i, buffer, (Integer)jSpinner7.getValue(), jLabel9, modelConsumidor);
-                consumer.start(); 
-            }
-
-
+            for(int i = 0; i < this.producers.length; i++)
+                {
+                    this.producers[i].interrupt();
+                }
+            for(int i = 0; i < this.consumers.length; i++)
+                {
+                    this.consumers[i].interrupt();
+                }
 
             banderaBoton =  !banderaBoton;
+            
         }
+        else
+        {
+            Buffer buffer = new Buffer((Integer)jSpinner5.getValue(),jProgressBar1, jLabel9);
+            int min = (Integer)jSpinner8.getValue();
+            int max = (Integer)jSpinner3.getValue();
+            if(max > min)
+            {
+                modelConsumidor.setRowCount(0);
+                modelProductor.setRowCount(0);
+                
+                this.producers = new Producer[(Integer)jSpinner1.getValue()];
+                for(int i = 0; i < (Integer)jSpinner1.getValue(); i++)
+                {
+                    Producer producer = new Producer(i, buffer, (Integer)jSpinner6.getValue(), min, max, modelProductor, (Integer)jSpinner5.getValue());
+                    this.producers[i]= producer;
+                    producer.start(); 
+                }
+                this.consumers = new Consumer[(Integer)jSpinner2.getValue()];
+                for(int i = 0; i < (Integer)jSpinner2.getValue(); i++)
+                {
+                    Consumer consumer = new Consumer(i, buffer, (Integer)jSpinner7.getValue(), jLabel9, modelConsumidor);
+                    this.consumers[i] = consumer;
+                    consumer.start(); 
+                }
+
+
+
+                banderaBoton =  !banderaBoton;
+                jButton1.setText("DETENER");
+                
+            }
+            else
+            {
+                jButton1.setText("INICIAR");
+                JOptionPane.showMessageDialog(null, "Wrong range, min > max");
+            }
+            
+        }
+        
+        
+        
+        
     }//GEN-LAST:event_jButton1ActionPerformed
 
     /**
