@@ -16,6 +16,7 @@ public class Producer extends Thread {
     int min;
     int max;
     DefaultTableModel model;
+    volatile boolean end = false;
     int buffSize;
     int rowCount = 0;
     public static String[] operadores = {"+", "-", "*", "/"};
@@ -29,6 +30,7 @@ public class Producer extends Thread {
         this.max = max;
         this.model = model;
         this.buffSize = buffSize;
+        
         this.model.setNumRows(buffSize);
         r = new Random(System.currentTimeMillis());
         
@@ -42,13 +44,14 @@ public class Producer extends Thread {
         rowCount++;
         notify();
     }
-    
-    
+    public synchronized void finish(){
+        this.end = true;
+    }
     @Override
     public void run() {
         System.out.println("Running Producer...");
         
-        while(true) {
+        while(!this.end) {
             String operador = operadores[r.nextInt(4)];
             String operando1 = String.valueOf(operandos.charAt(ThreadLocalRandom.current().nextInt(min, max + 1)%operandos.length()));
             String operando2 = String.valueOf(operandos.charAt(ThreadLocalRandom.current().nextInt(min, max + 1)%operandos.length()));
@@ -61,7 +64,7 @@ public class Producer extends Thread {
             try {
                 Thread.sleep(this.sleep);
             } catch (InterruptedException ex) {
-                Logger.getLogger(Producer.class.getName()).log(Level.SEVERE, null, ex);
+                this.finish();
             }
         }
     }

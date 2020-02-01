@@ -5,15 +5,25 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import java.util.ArrayList;
+import javax.swing.JLabel;
+import javax.swing.JProgressBar;
 
 public class Buffer {
     
     private ArrayList<String> buffer;
     private int n;
+    private JProgressBar bar;
+    private JLabel label;
     
-    public Buffer(int n) {
+    public Buffer(int n, JProgressBar bar, JLabel label) {
         buffer = new ArrayList<String>();
         this.n = n;
+        this.label = label;
+        this.label.setText(String.valueOf(this.buffer.size()));
+        this.bar = bar;
+        this.bar.setMinimum(0);
+        this.bar.setMaximum(n);
+        
     }
     
     synchronized String consume() {
@@ -28,6 +38,8 @@ public class Buffer {
         }
         try{
         product = this.buffer.remove(0);
+        this.bar.setValue(this.buffer.size());
+        this.label.setText(String.valueOf(this.buffer.size()));
         }catch(Exception ex){}
         notify();
         
@@ -43,6 +55,8 @@ public class Buffer {
             }
         }
         this.buffer.add(product);
+        this.bar.setValue(this.buffer.size());
+        this.label.setText(String.valueOf(this.buffer.size()));
         
         notify();
     }
