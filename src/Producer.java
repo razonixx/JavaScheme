@@ -17,8 +17,6 @@ public class Producer extends Thread {
     int max;
     DefaultTableModel model;
     volatile boolean end = false;
-    int buffSize;
-    int rowCount = 0;
     public static String[] operadores = {"+", "-", "*", "/"};
     public static String operandos = "0123456789";
     
@@ -29,21 +27,11 @@ public class Producer extends Thread {
         this.min = min;
         this.max = max;
         this.model = model;
-        this.buffSize = buffSize;
-        
-        this.model.setNumRows(buffSize);
         r = new Random(System.currentTimeMillis());
         
         operandos = max==9?operandos.substring(min):operandos.substring(min, max+1);
     }
     
-    public synchronized void writeTable(int id, String product)
-    {
-        model.setValueAt(id, rowCount%buffSize, 0);
-        model.setValueAt(product, rowCount%buffSize, 1);
-        rowCount++;
-        notify();
-    }
     public synchronized void finish(){
         this.end = true;
     }
@@ -57,8 +45,7 @@ public class Producer extends Thread {
             String operando2 = String.valueOf(operandos.charAt(ThreadLocalRandom.current().nextInt(min, max + 1)%operandos.length()));
             String operacion = "";
             operacion = "(" + operador + " " + operando1 + " " + operando2 + ")";
-            this.writeTable(id, operacion);
-            this.buffer.produce(operacion);
+            this.buffer.produce(operacion, this.id);
             //Buffer.print("Producer " + id + " produced: " + operacion);
             
             try {

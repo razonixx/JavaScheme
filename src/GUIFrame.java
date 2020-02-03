@@ -20,7 +20,7 @@ public class GUIFrame extends javax.swing.JFrame {
     String[] columnNamesProductor = {"ID Productor","Scheme Op"};
     
     DefaultTableModel modelConsumidor = new DefaultTableModel(columnNames, 0);
-    DefaultTableModel modelProductor = new DefaultTableModel(columnNamesProductor, 100);
+    DefaultTableModel modelProductor = new DefaultTableModel(columnNamesProductor, 0);
     
     private Producer[] producers;
     private Consumer[] consumers;
@@ -280,7 +280,7 @@ public class GUIFrame extends javax.swing.JFrame {
         }
         else
         {
-            Buffer buffer = new Buffer((Integer)jSpinner5.getValue(),jProgressBar1, jLabel9);
+            Buffer buffer = new Buffer((Integer)jSpinner5.getValue(),jProgressBar1, jLabel9, modelConsumidor, modelProductor);
             int min = (Integer)jSpinner8.getValue();
             int max = (Integer)jSpinner3.getValue();
             if(max > min)
