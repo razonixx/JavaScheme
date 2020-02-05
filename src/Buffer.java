@@ -50,8 +50,6 @@ public class Buffer {
     public void produce(int id) throws InterruptedException {
         synchronized (this.buffer) {
             while (this.buffer.size() == maxSize) {
-                 System.out.println(Thread.currentThread().getName()+", Queue is full, producerThread is waiting for "
-                        + "consumerThread to consume, sharedQueue's size= "+maxSize);
                  this.buffer.wait();
             }
             String operador = operadores[r.nextInt(4)];
@@ -60,11 +58,10 @@ public class Buffer {
             String producedItem =  "(" + operador + " " + operando1 + " " + operando2 + ")"; 
 
             this.modelProductor.addRow(new Object[] {id, producedItem});
-            System.out.println(Thread.currentThread().getName() +" Produced : " + producedItem);
             this.buffer.add(producedItem);
             this.bufferCount++;
             this.bufferBar.setValue(this.bufferCount);
-            Thread.sleep((long)(this.sleepConsumer* 1000));
+            Thread.sleep(this.sleepConsumer);
             this.buffer.notify();
         }
     }
@@ -72,11 +69,9 @@ public class Buffer {
     public void consume(int id) throws InterruptedException {
         synchronized (this.buffer) {
             while (this.buffer.size() == 0) {
-                System.out.println(Thread.currentThread().getName()+", Queue is empty, consumerThread is waiting for "
-                               + "producerThread to produce, sharedQueue's size= 0");
                 this.buffer.wait();
             }
-            Thread.sleep((long)(this.sleepProduce * 2000));
+            Thread.sleep(this.sleepProduce);
             String producedItem = this.buffer.remove(0);
             this.bufferCount++;
             this.bufferBar.setValue(this.bufferCount);
