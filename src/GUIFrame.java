@@ -1,4 +1,6 @@
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 
@@ -280,31 +282,32 @@ public class GUIFrame extends javax.swing.JFrame {
         }
         else
         {
-            Buffer buffer = new Buffer((Integer)jSpinner5.getValue(),jProgressBar1, jLabel9, modelConsumidor, modelProductor);
             int min = (Integer)jSpinner8.getValue();
             int max = (Integer)jSpinner3.getValue();
+            Buffer buffer = new Buffer((int)jSpinner5.getValue(),min, max, (int)jSpinner6.getValue(),(int)jSpinner7.getValue(), 
+                    modelConsumidor, modelProductor,jLabel9,jProgressBar1);
+            
             if(max > min)
             {
                 modelConsumidor.setRowCount(0);
                 modelProductor.setRowCount(0);
                 
+                jLabel9.setText("0");
                 this.producers = new Producer[(Integer)jSpinner1.getValue()];
                 for(int i = 0; i < (Integer)jSpinner1.getValue(); i++)
                 {
-                    Producer producer = new Producer(i, buffer, (Integer)jSpinner6.getValue(), min, max, modelProductor, (Integer)jSpinner5.getValue());
+                    Producer producer = new Producer(buffer, i);
                     this.producers[i]= producer;
                     producer.start(); 
                 }
                 this.consumers = new Consumer[(Integer)jSpinner2.getValue()];
                 for(int i = 0; i < (Integer)jSpinner2.getValue(); i++)
                 {
-                    Consumer consumer = new Consumer(i, buffer, (Integer)jSpinner7.getValue(), jLabel9, modelConsumidor);
+                    Consumer consumer = new Consumer(buffer, i);
                     this.consumers[i] = consumer;
                     consumer.start(); 
                 }
-
-
-
+               
                 banderaBoton =  !banderaBoton;
                 jButton1.setText("DETENER");
                 

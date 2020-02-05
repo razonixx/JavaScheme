@@ -1,52 +1,34 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
 
-
-
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.swing.JLabel;
-import javax.swing.JSpinner;
-import javax.swing.table.DefaultTableModel;
-
-public class Consumer extends Thread {
-    Buffer buffer;
-    int sleep;
-    int id;
-    volatile boolean end = false;
-    static Long counter = 1L;
-    static JLabel jLabel;
-    static DefaultTableModel model;
+/**
+ *
+ * @author wally
+ */
+class Consumer extends Thread {
+    private Buffer buffer;
+    int producerNo;
+    private boolean end;
     
-    Consumer(int id, Buffer buffer, int sleep, JLabel jLabel9, DefaultTableModel model) {
-        this.buffer = buffer;
-        this.sleep = sleep;
-        this.id = id;
-        this.jLabel = jLabel9;
-        this.model = model;
+    public Consumer(Buffer buffer, int producerNo) {
+     this.buffer = buffer;
+     this.producerNo = producerNo;
+     this.end = false;
     }
     
     public synchronized void finish(){
         this.end = true;
     }
     @Override
-    public synchronized void run() {
-        System.out.println("Running Consumer...");
-        
-        
-        while(!this.end) {
-            this.buffer.consume(id);
-            counter++;
-            this.jLabel.setText(String.valueOf(counter));
-            
-                try{
-                    //notify();
-                }catch(Exception ex){
-                    Logger.getLogger(Producer.class.getName()).log(Level.SEVERE, null, ex);
-                    //System.exit(0);
-                }
-            
+    public void run() {
+        while (!this.end) {
             try {
-                Thread.sleep(this.sleep);
-            } catch (InterruptedException ex) {
+                this.buffer.consume(this.producerNo);
+                Thread.sleep(100);
+            } catch (InterruptedException e) { 
                 this.finish();
             }
         }
