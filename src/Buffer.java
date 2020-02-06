@@ -65,6 +65,32 @@ public class Buffer {
             this.buffer.notify();
         }
     }
+    
+    public String eval(String op, String op1, String op2)
+    {
+        int res;
+        String resString;
+        switch(op)
+        {
+            case "+":
+                res = Integer.parseInt(op1) + Integer.parseInt(op2);
+                return String.valueOf(res);
+            case "-":
+                res = Integer.parseInt(op1) - Integer.parseInt(op2);
+                return String.valueOf(res);
+            case "*":
+                res = Integer.parseInt(op1) * Integer.parseInt(op2);
+                return String.valueOf(res);
+            case "/":
+                if(op2.equals("0"))
+                {
+                    return "Error: Division by 0";
+                }
+                resString = String.valueOf(Double.parseDouble(op1)/Double.parseDouble(op2));
+                return resString;
+        }
+        return "Error in evaluating the string";
+    }
 
     public void consume(int id) throws InterruptedException {
         synchronized (this.buffer) {
@@ -79,7 +105,7 @@ public class Buffer {
             this.count.setText(""+this.consumeProducts);
             System.out.println(Thread.currentThread().getName()+", CONSUMED : "+ producedItem);
             this.modelProductor.removeRow(0);
-            this.modelConsumidor.addRow(new Object[] {id, producedItem});
+            this.modelConsumidor.addRow(new Object[] {id, producedItem, eval(producedItem.substring(1, 2), producedItem.substring(3, 4), producedItem.substring(5, 6))});
             this.buffer.notify();
         }
     }
